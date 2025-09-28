@@ -1,15 +1,18 @@
 // src/Table.jsx
-import React from "react";
-
-function Table() {
-  return (
-    <table>
+// src/Table.jsx
+function TableHeader() {
+    return (
       <thead>
         <tr>
           <th>Name</th>
           <th>Job</th>
         </tr>
       </thead>
+    );
+  }
+  
+  function TableBody() {
+    return (
       <tbody>
         <tr>
           <td>Charlie</td>
@@ -28,8 +31,18 @@ function Table() {
           <td>Bartender</td>
         </tr>
       </tbody>
-    </table>
-  );
+    );
+  }
+
+  function Table() {
+    return (
+      <table>
+        <TableHeader />
+        <TableBody />
+      </table>
+    );
 }
 
 export default Table;
+  
+  
