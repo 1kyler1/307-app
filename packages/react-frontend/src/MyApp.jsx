@@ -14,6 +14,10 @@ const initialCharacters = [
 function MyApp() {
   const [characters, setCharacters] = useState([]);
 
+  function updateList(person) {
+    setCharacters([...characters, person]);
+  }
+
   function removeOneCharacter(index) {
     setCharacters((prev) => prev.filter((_, i) => i !== index));
   }
@@ -24,7 +28,7 @@ function MyApp() {
         characterData={characters}
         removeCharacter={removeOneCharacter}
       />
-      <Form />
+       <Form handleSubmit={updateList} />
     </div>
   );
 }
