@@ -16,11 +16,17 @@ function MyApp() {
 
   function updateList(person) { 
     postUser(person)
-      .then(() => setCharacters([...characters, person]))
-      .catch((error) => {
-        console.log(error);
+      .then(async (res) => {
+        if (res.status === 201) {
+          const createdUser = await res.json();
+          setCharacters((prev) => [...prev, createdUser]); // ✅ Add only if created
+        } else {
+          console.warn(`No update — backend returned status ${res.status}`);
+        }
       })
+      .catch((error) => console.error("Error creating user:", error));
   }
+
 
   function removeOneCharacter(index) {
     setCharacters((prev) => prev.filter((_, i) => i !== index));
@@ -32,7 +38,7 @@ function MyApp() {
   }
 
   function postUser(person) {
-    const promise = fetch("Http://localhost:8000/users", {
+    const promise = fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
