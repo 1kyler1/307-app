@@ -19,7 +19,7 @@ function MyApp() {
       .then(async (res) => {
         if (res.status === 201) {
           const createdUser = await res.json();
-          setCharacters((prev) => [...prev, createdUser]); // ✅ Add only if created
+          setCharacters((prev) => [...prev, createdUser]); 
         } else {
           console.warn(`No update — backend returned status ${res.status}`);
         }
@@ -27,9 +27,25 @@ function MyApp() {
       .catch((error) => console.error("Error creating user:", error));
   }
 
+  function deleteUser(id) {
+    return fetch(`http://localhost:8000/users/${id}`, {
+      method: "DELETE",
+    });
+  }
+
 
   function removeOneCharacter(index) {
-    setCharacters((prev) => prev.filter((_, i) => i !== index));
+    deleteUser(id)
+      .then((res) => {
+        if (res.status === 204) {
+          setCharacters((prev) => prev.filter((u) => u.id !== id));
+        } else if (res.status === 404) {
+          console.warn("No update — backend says resource not found (404).");
+        } else {
+          throw new Error(`Unexpected status: ${res.status}`);
+        }
+      })
+      .catch((error) => console.error("Error deleting user:", error));
   }
 
   function fetchUsers() {

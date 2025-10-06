@@ -13,15 +13,20 @@ function TableHeader() {
   }
   
   function TableBody({ characterData, removeCharacter }) {
-    const rows = characterData.map((row, index) => (
-      <tr key={index}>
-        <td>{row.name}</td>
-        <td>{row.job}</td>
-        <td>
-          <button onClick={() => removeCharacter(index)}>Delete</button>
-        </td>
-      </tr>
-    ));
+    const rows = characterData.map((row, index) => {
+      const rowId = row.id ?? index; // fallback during transition/testing
+      return (
+        <tr key={rowId}>
+          <td>{row.name}</td>
+          <td>{row.job}</td>
+          <td>
+            <button onClick={() => removeCharacter(row.id ?? null)}>
+              Delete
+            </button>
+          </td>
+        </tr>
+      );
+    });
   
     return <tbody>{rows}</tbody>;
   }
