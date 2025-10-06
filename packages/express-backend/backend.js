@@ -92,7 +92,7 @@ app.delete("/users/:id", (req, res) => {
     return res.status(204).send();
   });
 
-  const addUser = (user) => {
+const addUser = (user) => {
     
     const newUser = { id: generateId(), ...user };
     users["users_list"].push(newUser);
@@ -101,8 +101,8 @@ app.delete("/users/:id", (req, res) => {
   
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
-    addUser(userToAdd);
-    res.status(201).send(userToAdd);
+    const created = addUser(userToAdd);
+    res.status(201).send(created);
 });
 
 app.listen(port, () => {
