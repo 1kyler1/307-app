@@ -34,7 +34,7 @@ function MyApp() {
   }
 
 
-  function removeOneCharacter(index) {
+  function removeOneCharacter(id) {
     deleteUser(id)
       .then((res) => {
         if (res.status === 204) {

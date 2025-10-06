@@ -6,6 +6,7 @@ function TableHeader() {
         <tr>
           <th>Name</th>
           <th>Job</th>
+          <th>ID</th>
           <th></th>
         </tr>
       </thead>
@@ -19,6 +20,7 @@ function TableHeader() {
         <tr key={rowId}>
           <td>{row.name}</td>
           <td>{row.job}</td>
+          <td>{row.id}</td>
           <td>
             <button onClick={() => removeCharacter(row.id ?? null)}>
               Delete
