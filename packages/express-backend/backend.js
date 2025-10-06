@@ -43,6 +43,10 @@ const users = {
     ]
 };
 
+function generateId() {
+    return Math.random().toString(36).substring(2, 8);
+  }
+
 const findUsers = ({ name, job }) =>
   users.users_list.filter(u => {
     const matchName = name ? u.name === name : true;
@@ -62,7 +66,7 @@ const findUserById = (id) =>
     users["users_list"].find((user) => user["id"] === id);
 
 app.get("/users/:id", (req, res) => {
-    const id = req.params["id"]; //or req.params.id
+    const id = req.params["id"]; 
     let result = findUserById(id);
     if (result === undefined) {
         res.status(404).send("Resource not found.");
@@ -75,7 +79,7 @@ const removeUsersById = (id) => {
     const before = users.users_list.length;
     users.users_list = users.users_list.filter((u) => u.id !== id);
     const after = users.users_list.length;
-    return before - after; // number of records deleted
+    return before - after; 
 };
 
 app.delete("/users/:id", (req, res) => {
@@ -88,10 +92,12 @@ app.delete("/users/:id", (req, res) => {
     return res.status(204).send();
   });
 
-const addUser = (user) => {
-    users["users_list"].push(user);
-    return user;
-};
+  const addUser = (user) => {
+    
+    const newUser = { id: generateId(), ...user };
+    users["users_list"].push(newUser);
+    return newUser;
+  };
   
 app.post("/users", (req, res) => {
     const userToAdd = req.body;
