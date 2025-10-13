@@ -1,6 +1,7 @@
 // backend.js
 import express from "express";
 import cors from "cors";
+import userServices from "./user-services.js";
 
 const app = express();
 const port = 8000;
@@ -8,101 +9,56 @@ const port = 8000;
 app.use(cors());
 app.use(express.json());
 
-const users = {
-    users_list: [
-      {
-        id: "xyz789",
-        name: "Charlie",
-        job: "Janitor"
-      },
-      {
-        id: "abc123",
-        name: "Mac",
-        job: "Bouncer"
-      },
-      {
-        id: "ppp222",                   
-        name: "Mac",
-        job: "Professor"
-      },
-      {
-        id: "yat999",
-        name: "Dee",
-        job: "Aspring actress"
-      },
-      {
-        id: "zap555",
-        name: "Dennis",
-        job: "Bartender"
-      },
-      {
-        id: "zap555",
-        name: "Lebron",
-        job: "Jameson"
-      }
-    ]
-};
+// 1) GET /users
+app.get("/users", (req, res) => {
+  const { name, job } = req.query;
+  userServices
+    .getUsers(name, job)
+    .then((docs) => res.send({ users_list: docs }))
+    .catch((err) => {
+      console.error("GET /users error:", err);
+      res.status(500).send("Internal server error.");
+    });
+});
 
-function generateId() {
-    return Math.random().toString(36).substring(2, 8);
+// 2) GET /users/:id
+app.get("/users/:id", (req, res) => {
+  userServices
+    .findUserById(req.params.id)
+    .then((doc) => (doc ? res.send(doc) : res.status(404).send("Resource not found.")))
+    .catch(() => res.status(404).send("Resource not found."));
+});
+
+// 3) POST /users  (create)
+app.post("/users", (req, res) => {
+  const { name, job } = req.body || {};
+  if (!name || !job) {
+    return res.status(400).send("Missing required fields: name and job.");
   }
 
-const findUsers = ({ name, job }) =>
-  users.users_list.filter(u => {
-    const matchName = name ? u.name === name : true;
-    const matchJob = job ? u.job === job : true;
-    return matchName && matchJob;
-  });
-app.get("/users", (req, res) => {
-    const { name, job } = req.query;
-    if (name !== undefined || job !== undefined) {
-        const result = findUsers({ name, job });
-    return res.send({ users_list: result });
-    }
-    return res.send(users);
+  userServices
+    .addUser({ name, job })
+    .then((created) => res.status(201).send(created))
+    .catch((err) => {
+      console.error("POST /users error:", err);
+      if (err?.name === "ValidationError") {
+        return res.status(400).send(err.message);
+      }
+      res.status(500).send("Internal server error.");
+    });
 });
-
-const findUserById = (id) =>
-    users["users_list"].find((user) => user["id"] === id);
-
-app.get("/users/:id", (req, res) => {
-    const id = req.params["id"]; 
-    let result = findUserById(id);
-    if (result === undefined) {
-        res.status(404).send("Resource not found.");
-    } else {
-        res.send(result);
-    }
-});
-
-const removeUsersById = (id) => {
-    const before = users.users_list.length;
-    users.users_list = users.users_list.filter((u) => u.id !== id);
-    const after = users.users_list.length;
-    return before - after; 
-};
 
 app.delete("/users/:id", (req, res) => {
-    const { id } = req.params;
-    const deletedCount = removeUsersById(id);
-  
-    if (deletedCount === 0) {
-      return res.status(404).send("Resource not found.");
-    }
-    return res.status(204).send();
-  });
-
-const addUser = (user) => {
-    
-    const newUser = { id: generateId(), ...user };
-    users["users_list"].push(newUser);
-    return newUser;
-  };
-  
-app.post("/users", (req, res) => {
-    const userToAdd = req.body;
-    const created = addUser(userToAdd);
-    res.status(201).send(created);
+  userServices
+    .removeUserById(req.params.id)
+    .then((deleted) => {
+      if (!deleted) return res.status(404).send("Resource not found.");
+      res.status(204).send();
+    })
+    .catch((err) => {
+      console.error("DELETE /users/:id error:", err);
+      res.status(500).send("Internal server error.");
+    });
 });
 
 app.listen(port, () => {
@@ -110,3 +66,5 @@ app.listen(port, () => {
     `Example app listening at http://localhost:${port}`
   );
 }); 
+
+
